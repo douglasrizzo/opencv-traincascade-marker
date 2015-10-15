@@ -1,5 +1,5 @@
 sudo: true
-language: c++
+language: cpp
 before_install: 
  - sudo apt-get install build-essential cmake libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev python-dev python-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev
  - wget https://github.com/Itseez/opencv/archive/2.4.11.zip
