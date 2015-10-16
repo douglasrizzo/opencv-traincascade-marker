@@ -42,13 +42,13 @@ Depois, gerar arquivo `.vec` através do arquivo `.dat`:
 
 Por último, iniciar treinamento:
 
-    opencv_traincascade -data classifier -vec annotations.vec -bg negatives.txt -numStages 12 -minHitRate 0.999 -maxFalseAlarmRate 0.5 -numPos $(($(wc -l < annotations.dat)/100*95)) -numNeg $(wc -l < negatives.txt) -mode ALL
+    opencv_traincascade -data hog -vec annotations.vec -bg negatives.txt -numStages 12 -minHitRate 0.999 -maxFalseAlarmRate 0.5 -numPos $(($(wc -l < annotations.dat)/100*90)) -numNeg $(($(wc -l < negatives.txt)*10)) -mode ALL
 
 **Com relação aos parâmetros:**
 
 * `-data`: diretório onde seram salvados os XML de treinamento;
 * `-numPos`: número de imagens positivas utilizadas para treinamento. Não é o mesmo número de imagens positivas utilizadas na criação do arquivo `.vec`, deve ser menor para que algumas sejam usadas no teste;
-* `-numNeg`: número de imagens negativas. Pode ser o total de imagens no arquivo de negativas.
+* `-numNeg`: número de imagens negativas. Pode ser o total de imagens no arquivo de negativas ou mais (o programa corta cada imagem em menores resoluções).
 
 Exemplo de como passar 95% das imagens positivas no treinamento: `$(($(wc -l < annotations.dat)/100*95))`
 
