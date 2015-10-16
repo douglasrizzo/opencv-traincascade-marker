@@ -11,26 +11,48 @@ The original annotation application was copied from [here](http://www.technolabs
 * Necessário criar arquivo listando **exemplos negativos** de imagens, denominado abaixo como `negatives.txt`.
 
 ### Procedimento
-Criar arquivo texto listando imagens negativas. Um exemplo de comando que lista o caminho absoluto de todas as imagens em um diretório, recursivamente, e os salva em um arquivos `negatives.txt` é o seguinte:
+O procedimento abaixo supõe uma estrutura de diretórios e arquivos parecida com a seguinte:
+
+    dir/
+        annotations.dat
+        annotations.vec
+        negatives.txt
+        /classifier
+            cascade.xml
+            stage-0.xml
+            ...
+            stage-n.xml
+
+Para criar o arquivo texto listando imagens negativas, utilize um comando que lista o caminho absoluto de todas as imagens em um diretório, recursivamente, e os salva em um arquivos `negatives.txt`, como o seguinte:
 
     find `pwd` -not -path '*/\.*' -regextype posix-extended -regex '.*\.(png|bmp|jpg|jpeg)' -type f > negatives.txt
 
-**Importante: não usar links relativos, apenas absolutos.**
+**Importante: não usar links relativos em nenhum arquivo, apenas absolutos.**
 
-Gerar arquivo `.vec` através do arquivo `.dat`
+Depois, gerar arquivo `.vec` através do arquivo `.dat`:
 
-    opencv_createsamples -info laranja.dat -vec laranja.vec
+    opencv_createsamples -info annotations.dat -vec annotations.vec
 
 * `.dat` contém as imagens positivas e as coordenadas dos retângulos
 * `.vec` é o formato utilizado posteriormente no treinamento do classificador
 
 *Opcional:* visualizar conteúdo do `.vec`
 
-    opencv_createsamples -vec laranja.vec
+    opencv_createsamples -vec annotations.vec
 
-Iniciar treinamento:
+Por último, iniciar treinamento:
 
-    opencv_traincascade -data classifier -vec laranja.vec -bg negatives.txt -numStages 20 -minHitRate 0.999 -maxFalseAlarmRate 0.5 -numPos 424  -numNeg 405 -mode ALL -precalcValBufSize 256 -precalcIdxBufSize 256
+    opencv_traincascade -data classifier -vec annotations.vec -bg negatives.txt -numStages 12 -minHitRate 0.999 -maxFalseAlarmRate 0.5 -numPos $(($(wc -l < annotations.dat)/100*95)) -numNeg $(wc -l < negatives.txt) -mode ALL
+
+**Com relação aos parâmetros:**
+
+* `-data`: diretório onde seram salvados os XML de treinamento;
+* `-numPos`: número de imagens positivas utilizadas para treinamento. Não é o mesmo número de imagens positivas utilizadas na criação do arquivo `.vec`, deve ser menor para que algumas sejam usadas no teste;
+* `-numNeg`: número de imagens negativas. Pode ser o total de imagens no arquivo de negativas.
+
+Exemplo de como passar 95% das imagens positivas no treinamento: `$(($(wc -l < annotations.dat)/100*95))`
+
+Exemplo de como passar 100% das negativas no treinamento: `$(wc -l < negatives.txt)`
 
 Usar parâmetro `[-featureType <{HAAR(default), LBP, HOG}>]` para selecionar qual classificador será treinado.
 
